@@ -1,0 +1,4 @@
+.git
+node_modules
+azure_database_cert
+docker-compose.yml
