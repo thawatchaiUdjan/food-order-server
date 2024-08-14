@@ -1,4 +1,5 @@
 module.exports = {
+    DB_NAME: 'mongoDB',
     DB_CERT_DIR: 'azure_database_cert/DigiCertGlobalRootCA.pem',
     ENCRYPT_SALT_ROUNDS: 10,
     UPLOAD_IMAGE: {
