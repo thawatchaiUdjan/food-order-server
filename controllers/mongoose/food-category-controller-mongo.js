@@ -15,6 +15,7 @@ const getCategory = async (req, res) => {
 const createCategory = async (req, res) => {
     const category = req.body
     try {
+        category.category_id = utils.generateUuid()
         const newCategory = new FoodCategory(category)
         await newCategory.save()
         res.status(201).json({
