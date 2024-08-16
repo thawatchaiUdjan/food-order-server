@@ -4,7 +4,7 @@ const config = require('./config')
 
 const connectDB = async () => {
     try {
-        return await mysql.createConnection(process.env.DB_CONNECTION_STRING)
+        return await mysql.createConnection(process.env.DB_CONNECTION_STRING_AZURE)
     } catch (err) {
         console.log(`${config.RES_MESSAGES.ERROR.DB_CONNECTION_FAILED}: `, err.message)
         throw err
