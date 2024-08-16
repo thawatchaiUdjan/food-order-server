@@ -44,6 +44,6 @@ const foodSchema = new mongoose.Schema({
     toObject: { versionKey: false },
 })
 
-const Food = mongoose.model('Food', foodSchema)
+const Food = mongoose.model('foods', foodSchema)
 
 module.exports = { Food }
