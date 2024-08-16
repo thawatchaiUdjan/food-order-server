@@ -1,7 +1,7 @@
 const { Food } = require("../../models/food")
+const { connectDB, disconnectDB } = require("../../db-mongoose")
 const utils = require('../../utils')
 const config = require('../../config')
-const { connectDB, disconnectDB } = require("../../db-mongoose")
 
 const getFoods = async (req, res) => {
     await connectDB()
