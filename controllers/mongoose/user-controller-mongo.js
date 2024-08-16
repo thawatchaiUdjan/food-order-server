@@ -5,7 +5,6 @@ const config = require("../../config");
 const auth = require('../../middlewares/authentication');
 
 const login = async (req, res) => {
-    await connectDB()
     const { username, password } = req.body
     try {
         const user = await getUserByUsername(username)
@@ -26,13 +25,10 @@ const login = async (req, res) => {
     } catch (err) {
         console.log('Error login user: ', err.message)
         res.status(500).json({ message: config.RES_MESSAGES.ERROR.USER_LOGIN_FAILED })
-    } finally {
-        await disconnectDB()
     }
 }
 
 const register = async (req, res) => {
-    await connectDB()
     let userData = req.body
     try {
         const userResult = await getUserByUsername(userData.username)
@@ -54,8 +50,6 @@ const register = async (req, res) => {
     } catch (err) {
         console.log('Error register user: ', err.message)
         res.status(500).json({ message: config.RES_MESSAGES.ERROR.USER_REGISTER_FAILED })
-    } finally {
-        await disconnectDB()
     }
 }
 

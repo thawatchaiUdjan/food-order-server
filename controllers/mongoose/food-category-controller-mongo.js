@@ -1,23 +1,18 @@
 const { FoodCategory } = require("../../models/food-category");
-const { connectDB, disconnectDB } = require("../../db-mongoose");
 const utils = require('../../utils');
 const config = require("../../config");
 
 const getCategory = async (req, res) => {
-    await connectDB()
     try {
         const result = await FoodCategory.find()
         res.status(200).json(result)
     } catch (err) {
         console.log(`${config.RES_MESSAGES.ERROR.LOAD_DATA_FAILED}:`, err.message)
         res.status(500).json({ message: config.RES_MESSAGES.ERROR.LOAD_DATA_FAILED })
-    } finally {
-        await disconnectDB()
     }
 }
 
 const createCategory = async (req, res) => {
-    await connectDB()
     const category = req.body
     try {
         const newCategory = new FoodCategory(category)
@@ -29,13 +24,10 @@ const createCategory = async (req, res) => {
     } catch (err) {
         console.log(`${config.RES_MESSAGES.ERROR.LOAD_DATA_FAILED}:`, err.message)
         res.status(500).json({ message: config.RES_MESSAGES.ERROR.LOAD_DATA_FAILED })
-    } finally {
-        await disconnectDB()
     }
 }
 
 const updateCategory = async (req, res) => {
-    connectDB()
     const categoryId = req.params.category_id
     const category = req.body
     try {
@@ -52,13 +44,10 @@ const updateCategory = async (req, res) => {
     } catch (err) {
         console.log(`${config.RES_MESSAGES.ERROR.LOAD_DATA_FAILED}:`, err.message)
         res.status(500).json({ message: config.RES_MESSAGES.ERROR.LOAD_DATA_FAILED })
-    } finally {
-        await disconnectDB()
     }
 }
 
 const deleteCategory = async (req, res) => {
-    await connectDB()
     const categoryId = req.params.category_id
     try {
         const result = await FoodCategory.findOneAndDelete({ category_id: categoryId })
@@ -70,8 +59,6 @@ const deleteCategory = async (req, res) => {
     } catch (err) {
         console.log(`${config.RES_MESSAGES.ERROR.LOAD_DATA_FAILED}:`, err.message)
         res.status(500).json({ message: config.RES_MESSAGES.ERROR.LOAD_DATA_FAILED })
-    } finally {
-        await disconnectDB()
     }
 }
 

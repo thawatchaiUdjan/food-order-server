@@ -1,23 +1,18 @@
 const { Food } = require("../../models/food")
-const { connectDB, disconnectDB } = require("../../db-mongoose")
 const utils = require('../../utils')
 const config = require('../../config')
 
 const getFoods = async (req, res) => {
-    await connectDB()
     try {
         const foods = await Food.find().sort({ created_at: -1 })
         res.status(200).json(foods)
     } catch (err) {
         console.error('Error fetching foods:', err.message)
         res.status(500).json({ message: 'Failed to load data' })
-    } finally {
-        await disconnectDB()
     }
 }
 
 const getFoodById = async (req, res) => {
-    await connectDB()
     const foodId = req.food_id
     try {
         const result = Food.findOne({ food_id: foodId })
@@ -30,13 +25,10 @@ const getFoodById = async (req, res) => {
     } catch (err) {
         console.log(`${config.RES_MESSAGES.ERROR.LOAD_DATA_FAILED}:`, err.message)
         res.status(500).json({ message: config.RES_MESSAGES.ERROR.LOAD_DATA_FAILED })
-    } finally {
-        await disconnectDB()
     }
 }
 
 const createFood = async (req, res) => {
-    await connectDB()
     const foodId = utils.getFoodIdFromReq(req)
     let food = req.body
     try {
@@ -51,13 +43,10 @@ const createFood = async (req, res) => {
     } catch (err) {
         console.error('Error adding food:', err.message)
         res.status(500).json({ message: 'Failed to add food' })
-    } finally {
-        await disconnectDB()
     }
 }
 
 const updateFood = async (req, res) => {
-    await connectDB()
     const foodId = req.params.food_id
     let food = req.body
     try {
@@ -75,13 +64,10 @@ const updateFood = async (req, res) => {
     } catch (err) {
         console.log(`${config.RES_MESSAGES.ERROR.LOAD_DATA_FAILED}:`, err.message)
         res.status(500).json({ message: config.RES_MESSAGES.ERROR.LOAD_DATA_FAILED })
-    } finally {
-        await disconnectDB()
     }
 }
 
 const deleteFood = async (req, res) => {
-    await connectDB()
     const foodId = req.params.food_id
     try {
         const food = await Food.findOneAndDelete({ food_id: foodId })
@@ -94,8 +80,6 @@ const deleteFood = async (req, res) => {
     } catch (err) {
         console.log(`${config.RES_MESSAGES.ERROR.LOAD_DATA_FAILED}:`, err.message)
         res.status(500).json({ message: config.RES_MESSAGES.ERROR.LOAD_DATA_FAILED })
-    } finally {
-        await disconnectDB()
     }
 }
 
