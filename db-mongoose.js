@@ -10,7 +10,9 @@ const connectDB = async () => {
 }
 
 const disconnectDB = async () => {
-    await mongoose.disconnect()
+    if (mongoose.connection.readyState !== 2) {
+        await mongoose.disconnect()
+    }
 }
 
 module.exports = {
