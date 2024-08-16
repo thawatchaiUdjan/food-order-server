@@ -1,4 +1,3 @@
-const { connectDB, disconnectDB } = require("../../db-mongoose");
 const { User } = require("../../models/user");
 const utils = require('../../utils');
 const config = require("../../config");
