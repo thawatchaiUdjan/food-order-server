@@ -27,8 +27,8 @@ const orderSchema = new mongoose.Schema({
         maxlength: 255,
     },
     order_status: {
-        type: Number,
-        default: 0,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'order_statuses',
     },
     created_at: {
         type: Date,

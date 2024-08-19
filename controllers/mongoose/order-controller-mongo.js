@@ -1,5 +1,6 @@
 const { Order } = require("../../models/order")
 const { OrderFood } = require("../../models/order-food")
+const { OrderStatus } = require("../../models/order-status")
 const utils = require('../../utils')
 const config = require('../../config')
 
@@ -9,6 +10,7 @@ const createOrder = async (req, res) => {
     try {
         order.order_id = utils.generateUuid()
         order.user_id = req.user.user_id
+        order.order_status = await getDefaultOrderStatus()
         const newOrder = new Order(order)
         await newOrder.save()
         foods.map(async food => {
@@ -52,10 +54,28 @@ const getOrders = async (req, res) => {
                     as: 'user'
                 }
             },
-            { $unwind: '$user' },
-            { $replaceRoot: { newRoot: { $mergeObjects: ['$$ROOT', '$user'] } } },
-            { $project: { user: 0 } }
+            {
+                $lookup: {
+                    from: 'order_statuses',
+                    localField: 'order_status',
+                    foreignField: '_id',
+                    as: 'status'
+                }
+            },
+            { $unwind: '$user'},
+            { $unwind: '$status'},
+            { $replaceRoot: { newRoot: { $mergeObjects: ['$$ROOT', { $mergeObjects: [
+                '$user',
+                '$status',
+            ]}] } } },
+            { $project: { 
+                user: 0,
+                status: 0,
+            }},
         ])
+        for (let order of result) {
+            order.foods = await getFoodByOrderId(order.order_id)
+        }
         res.status(200).json(result)
     } catch (err) {
         console.log('Error getting orders: ', err.message)
@@ -89,8 +109,23 @@ const deleteOrder = async (req, res) => {
 }
 
 const getOrderByUserId = async (userId) => {
-    const result = await Order.findOne({ user_id: userId })
-    return result
+    const result = await Order.aggregate([
+        { $match: { user_id: userId } },
+        {
+            $lookup: {
+                from: 'order_statuses',
+                localField: 'order_status',
+                foreignField: '_id',
+                as: 'status'
+            }
+        },
+        { $unwind: '$status' },
+        { $replaceRoot: { newRoot: { $mergeObjects: ['$$ROOT', '$status'] } } },
+        { $project: { 
+            status: 0,
+        } }
+    ])
+    return result[0]
 }
 
 const getFoodByOrderId = async (orderId) => {
@@ -122,6 +157,11 @@ const getFoodOrderByUserId = async (userId) => {
     } else {
         return null
     }
+}
+
+const getDefaultOrderStatus = async () => {
+    const result = await OrderStatus.findOne({ status_value: 0 })
+    return result._id
 }
 
 module.exports = {
