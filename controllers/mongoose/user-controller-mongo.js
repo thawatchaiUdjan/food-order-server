@@ -1,7 +1,7 @@
-const { User } = require("../../models/user");
-const utils = require('../../utils');
-const config = require("../../config");
-const auth = require('../../middlewares/authentication');
+const { User } = require("../../models/user")
+const utils = require('../../utils')
+const config = require("../../config")
+const auth = require('../../middlewares/authentication')
 
 const login = async (req, res) => {
     const { username, password } = req.body

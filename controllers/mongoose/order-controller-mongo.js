@@ -1,5 +1,5 @@
-const { Order } = require("../../models/order");
-const { OrderFood } = require("../../models/order-food");
+const { Order } = require("../../models/order")
+const { OrderFood } = require("../../models/order-food")
 const utils = require('../../utils')
 const config = require('../../config')
 
