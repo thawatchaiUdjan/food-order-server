@@ -4,7 +4,14 @@ const config = require('../../config')
 
 const getFoods = async (req, res) => {
     try {
-        const foods = await Food.find().sort({ created_at: -1 })
+        const foods = await Food.find()
+        .sort({ created_at: -1 })
+        .populate({
+            path: 'food_options',
+            populate: {
+                path: 'option_choices',
+            }
+        })
         res.status(200).json(foods)
     } catch (err) {
         console.error('Error fetching foods:', err.message)

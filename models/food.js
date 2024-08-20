@@ -36,8 +36,12 @@ const foodSchema = new mongoose.Schema({
         default: Date.now,
     },
     category_id: {
-        type: Number,
-    }
+        type: String,
+    },
+    food_options:[{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'food_options'
+    }],
 }, {
     timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' },
     toJSON: { versionKey: false },
