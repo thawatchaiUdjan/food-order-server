@@ -19,6 +19,8 @@ const createOrder = async (req, res) => {
                 food_id: food.food.food_id,
                 food_amount: food.amount,
                 food_total_price: food.total,
+                food_option_string: food.option.option_string,
+                food_option_note: food.option.option_note,
             })
             await orderFood.save()
         })
@@ -62,16 +64,35 @@ const getOrders = async (req, res) => {
                     as: 'status'
                 }
             },
-            { $unwind: '$user'},
-            { $unwind: '$status'},
-            { $replaceRoot: { newRoot: { $mergeObjects: ['$$ROOT', { $mergeObjects: [
-                '$user',
-                '$status',
-            ]}] } } },
-            { $project: { 
-                user: 0,
-                status: 0,
-            }},
+            {
+                $lookup: {
+                    from: 'delivery_options',
+                    localField: 'order_delivery_option',
+                    foreignField: '_id',
+                    as: 'delivery_option'
+                }
+            },
+            { $unwind: '$user' },
+            { $unwind: '$status' },
+            { $unwind: '$delivery_option' },
+            {
+                $replaceRoot: {
+                    newRoot: {
+                        $mergeObjects: ['$$ROOT', {
+                            $mergeObjects: [
+                                '$user',
+                                '$status',
+                            ]
+                        }]
+                    }
+                }
+            },
+            {
+                $project: {
+                    user: 0,
+                    status: 0,
+                }
+            },
         ])
         for (let order of result) {
             order.foods = await getFoodByOrderId(order.order_id)
@@ -109,23 +130,10 @@ const deleteOrder = async (req, res) => {
 }
 
 const getOrderByUserId = async (userId) => {
-    const result = await Order.aggregate([
-        { $match: { user_id: userId } },
-        {
-            $lookup: {
-                from: 'order_statuses',
-                localField: 'order_status',
-                foreignField: '_id',
-                as: 'status'
-            }
-        },
-        { $unwind: '$status' },
-        { $replaceRoot: { newRoot: { $mergeObjects: ['$$ROOT', '$status'] } } },
-        { $project: { 
-            status: 0,
-        } }
-    ])
-    return result[0]
+    const result = await Order.findOne({ user_id: userId })
+        .populate('order_status')
+        .populate('order_delivery_option')
+    return result
 }
 
 const getFoodByOrderId = async (orderId) => {
@@ -141,7 +149,7 @@ const getFoodByOrderId = async (orderId) => {
         },
         { $unwind: '$food' },
         { $replaceRoot: { newRoot: { $mergeObjects: ['$$ROOT', '$food'] } } },
-        { $project: { food: 0 } }
+        { $project: { food: 0, food_options: 0, } }
     ])
     return result
 }

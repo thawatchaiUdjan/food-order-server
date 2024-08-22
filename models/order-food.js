@@ -17,6 +17,13 @@ const orderFoodSchema = new mongoose.Schema({
         type: Number,
         required: true,
     },
+    food_option_string: [{
+        type: String,
+        maxlength: 48,
+    }],
+    food_option_note: {
+        type: String,
+    },
     created_at: {
         type: Date,
         default: Date.now,

@@ -14,21 +14,24 @@ const orderSchema = new mongoose.Schema({
         type: Number,
         required: true,
     },
-    delivery_price: {
-        type: Number,
-        required: true,
-    },
     total_price: {
         type: Number,
         required: true,
     },
     order_address: {
         type: String,
+        required: true,
         maxlength: 255,
     },
     order_status: {
         type: mongoose.Schema.Types.ObjectId,
+        required: true,
         ref: 'order_statuses',
+    },
+    order_delivery_option:{
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        ref: 'delivery_options',
     },
     created_at: {
         type: Date,
