@@ -5,13 +5,13 @@ const config = require('../../config')
 const getFoods = async (req, res) => {
     try {
         const foods = await Food.find()
-        .sort({ created_at: -1 })
-        .populate({
-            path: 'food_options',
-            populate: {
-                path: 'option_choices',
-            }
-        })
+            .sort({ created_at: -1 })
+            .populate({
+                path: 'food_options',
+                populate: {
+                    path: 'option_choices',
+                }
+            })
         res.status(200).json(foods)
     } catch (err) {
         console.error('Error fetching foods:', err.message)
@@ -58,7 +58,14 @@ const updateFood = async (req, res) => {
     let food = req.body
     try {
         if (req.file) food.food_image_url = req.file.path
-        const result = await Food.findOneAndUpdate({ food_id: foodId }, food, { new: true })
+        const result = await Food
+            .findOneAndUpdate({ food_id: foodId }, food, { new: true })
+            .populate({
+                path: 'food_options',
+                populate: {
+                    path: 'option_choices',
+                }
+            })
         if (result) {
             res.status(200).json({
                 message: config.RES_MESSAGES.SUCCESS.FOOD_UPDATED,

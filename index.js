@@ -11,6 +11,7 @@ const userRoute = require('./routes/user-route')
 const orderRoute = require('./routes/order-route')
 const orderStatusRoute = require('./routes/order-status-route')
 const deliveryRoute = require('./routes/delivery-route')
+const foodOptionRoute = require('./routes/food-option-route')
 
 const app = express()
 const port = parseInt(process.env.APP_PORT)
@@ -24,6 +25,7 @@ app.use('/category', auth.verifyToken, categoryRoute)
 app.use('/orders', auth.verifyToken, orderRoute)
 app.use('/order-status', orderStatusRoute)
 app.use('/delivery', deliveryRoute)
+app.use('/food-option', foodOptionRoute)
 
 app.listen(port, async (req, res) => {
     if (DB_NAME === 'mongoDB') await connectMongoDB()
