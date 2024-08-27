@@ -71,7 +71,7 @@ const googleLogin = async (req, res) => {
                 })
             } else {
                 const userId = utils.generateUuid()
-                const [firstName, lastName] = payload.name.split(' ');
+                const [firstName, lastName] = payload.name.split(' ')
                 const newUser = new User({
                     user_id: userId,
                     username: payload.sub,
@@ -89,7 +89,7 @@ const googleLogin = async (req, res) => {
             res.status(401).json({ message: 'No Google code provided' })
         }
     } catch (err) {
-        console.log('Fail Google login:', err.message);
+        console.log('Fail Google login:', err.message)
         res.status(500).json({ message: 'Fail to google login' })
     }
 }
@@ -99,7 +99,7 @@ const facebookLogin = async (req, res) => {
     if (accessToken) {
         passport.authenticate('facebook-token', { session: false }, async (err, user, info) => {
             if (user) {
-                const userData = await getUserByUsername(user.id);
+                const userData = await getUserByUsername(user.id)
                 if (userData) {
                     const token = auth.createToken(userData)
                     res.status(200).json({
@@ -107,14 +107,14 @@ const facebookLogin = async (req, res) => {
                         user: userData,
                     })
                 } else {
-                    const userId = utils.generateUuid();
+                    const userId = utils.generateUuid()
                     const newUser = new User({
                         user_id: userId,
                         username: user.id,
                         first_name: user.first_name,
                         last_name: user.last_name,
-                    });
-                    await newUser.save();
+                    })
+                    await newUser.save()
                     const token = auth.createToken(newUser)
                     res.status(200).json({
                         token: token,
@@ -122,12 +122,12 @@ const facebookLogin = async (req, res) => {
                     })
                 }
             } else {
-                console.log('Fail facebook login:', err);
+                console.log('Fail facebook login:', err)
                 res.status(401).json({ message: 'Fail to facebook login' })
             }
         })(req, res)
     } else {
-        console.log('No facebook access token provided');
+        console.log('No facebook access token provided')
         res.status(401).json({ message: 'No facebook access token provided' })
     }
 }
