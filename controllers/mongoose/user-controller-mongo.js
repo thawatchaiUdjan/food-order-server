@@ -1,4 +1,5 @@
 const { User } = require("../../models/user")
+const { OAuth2Client } = require('google-auth-library')
 const utils = require('../../utils')
 const config = require("../../config")
 const auth = require('../../middlewares/authentication')
@@ -52,6 +53,46 @@ const register = async (req, res) => {
     }
 }
 
+const googleLogin = async (req, res) => {
+    const code = req.body.code
+    try {
+        if (code) {
+            const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID, process.env.GOOGLE_SECRETE_ID, 'postmessage')
+            const { tokens } = await client.getToken(code)
+            const ticket = await client.verifyIdToken({ idToken: tokens.id_token })
+            const payload = ticket.getPayload()
+            const user = await getUserByUsername(payload.sub)
+            if (user) {
+                const token = auth.createToken(user)
+                res.status(200).json({
+                    token: token,
+                    user: user,
+                })
+            } else {
+                const userId = utils.generateUuid()
+                const [firstName, lastName] = payload.name.split(' ');
+                const newUser = new User({
+                    user_id: userId,
+                    username: payload.sub,
+                    first_name: firstName,
+                    last_name: lastName,
+                })
+                await newUser.save()
+                const token = auth.createToken(newUser)
+                res.status(200).json({
+                    token: token,
+                    user: newUser,
+                })
+            }
+        } else {
+            res.status(401).json({ message: 'No Google code provided' })
+        }
+    } catch (err) {
+        console.log('Fail Google login:', err.message);
+        res.status(500).json({ message: 'Fail to google login' })
+    }
+}
+
 const getUserByUsername = async (username) => {
     const result = await User.findOne({ username: username })
     return result
@@ -60,4 +101,5 @@ const getUserByUsername = async (username) => {
 module.exports = {
     login,
     register,
+    googleLogin,
 }
