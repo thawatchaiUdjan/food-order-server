@@ -3,6 +3,7 @@ const { OAuth2Client } = require('google-auth-library')
 const utils = require('../../utils')
 const config = require("../../config")
 const auth = require('../../middlewares/authentication')
+const passport = require('../../middlewares/passport-facebook-config')
 
 const login = async (req, res) => {
     const { username, password } = req.body
@@ -57,7 +58,7 @@ const googleLogin = async (req, res) => {
     const code = req.body.code
     try {
         if (code) {
-            const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID, process.env.GOOGLE_SECRETE_ID, 'postmessage')
+            const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID, process.env.GOOGLE_SECRET_ID, 'postmessage')
             const { tokens } = await client.getToken(code)
             const ticket = await client.verifyIdToken({ idToken: tokens.id_token })
             const payload = ticket.getPayload()
@@ -93,6 +94,44 @@ const googleLogin = async (req, res) => {
     }
 }
 
+const facebookLogin = async (req, res) => {
+    const accessToken = req.body.access_token
+    if (accessToken) {
+        passport.authenticate('facebook-token', { session: false }, async (err, user, info) => {
+            if (user) {
+                const userData = await getUserByUsername(user.id);
+                if (userData) {
+                    const token = auth.createToken(userData)
+                    res.status(200).json({
+                        token: token,
+                        user: userData,
+                    })
+                } else {
+                    const userId = utils.generateUuid();
+                    const newUser = new User({
+                        user_id: userId,
+                        username: user.id,
+                        first_name: user.first_name,
+                        last_name: user.last_name,
+                    });
+                    await newUser.save();
+                    const token = auth.createToken(newUser)
+                    res.status(200).json({
+                        token: token,
+                        user: newUser,
+                    })
+                }
+            } else {
+                console.log('Fail facebook login:', err);
+                res.status(401).json({ message: 'Fail to facebook login' })
+            }
+        })(req, res)
+    } else {
+        console.log('No facebook access token provided');
+        res.status(401).json({ message: 'No facebook access token provided' })
+    }
+}
+
 const getUserByUsername = async (username) => {
     const result = await User.findOne({ username: username })
     return result
@@ -102,4 +141,6 @@ module.exports = {
     login,
     register,
     googleLogin,
+    facebookLogin,
+    getUserByUsername,
 }
