@@ -1,6 +1,7 @@
 const { Order } = require("../../models/order")
 const { OrderFood } = require("../../models/order-food")
 const { OrderStatus } = require("../../models/order-status")
+const { updateUserData } = require("./user-controller-mongo")
 const utils = require('../../utils')
 const config = require('../../config')
 
@@ -8,27 +9,34 @@ const createOrder = async (req, res) => {
     const foods = req.body.foods
     let order = req.body.order
     try {
-        order.order_id = utils.generateUuid()
-        order.user_id = req.user.user_id
-        order.order_status = await getDefaultOrderStatus()
-        const newOrder = new Order(order)
-        await newOrder.save()
-        foods.map(async food => {
-            const orderFood = new OrderFood({
-                order_id: order.order_id,
-                food_id: food.food.food_id,
-                food_amount: food.amount,
-                food_total_price: food.total,
-                food_option_string: food.option.option_string,
-                food_option_note: food.option.option_note,
+        if (req.user.balance >= order.total_price) {
+            order.order_id = utils.generateUuid()
+            order.user_id = req.user.user_id
+            order.order_status = await getDefaultOrderStatus()
+            const balance = (req.user.balance - order.total_price).toFixed(2)
+            const user = await updateUserData(req.user.user_id, { balance: balance })
+            const newOrder = new Order(order)
+            await newOrder.save()
+            foods.map(async food => {
+                const orderFood = new OrderFood({
+                    order_id: order.order_id,
+                    food_id: food.food.food_id,
+                    food_amount: food.amount,
+                    food_total_price: food.total,
+                    food_option_string: food.option.option_string,
+                    food_option_note: food.option.option_note,
+                })
+                await orderFood.save()
             })
-            await orderFood.save()
-        })
-        const foodOrder = await getFoodOrderByUserId(order.user_id)
-        res.status(201).json({
-            message: config.RES_MESSAGES.SUCCESS.ORDER_ADDED,
-            foodOrder: foodOrder,
-        })
+            const foodOrder = await getFoodOrderByUserId(order.user_id)
+            res.status(201).json({
+                message: config.RES_MESSAGES.SUCCESS.ORDER_ADDED,
+                foodOrder: foodOrder,
+                user: user,
+            })
+        } else {
+            res.status(500).json({ message: 'Unable to create the order. balance is not enough' })
+        }
     } catch (err) {
         console.log('Error creating order: ', err.message)
         res.status(500).json({ message: config.RES_MESSAGES.ERROR.ORDER_CREATION_FAILED })

@@ -145,12 +145,12 @@ const getUser = async (req, res) => {
 
 const updateUser = async (req, res) => {
     const userId = req.user.user_id
-    const user = req.body
+    const userData = req.body
     try {
-        const result = await User.findOneAndUpdate({ user_id: userId }, user, { new: true })
+        const user = await updateUserData(userId, userData)
         res.status(200).json({
             message: 'User data successfully updated',
-            user: result
+            user: user,
         })
     } catch (err) {
         console.log('Fail to update user data:', err.message)
@@ -179,6 +179,12 @@ const getUserByUsername = async (username) => {
     return result
 }
 
+const updateUserData = async (userId, data) => {
+    const user = await User.findOneAndUpdate({ user_id: userId }, data, { new: true })
+    const token = auth.createToken(user)
+    return { user, token }
+}
+
 module.exports = {
     getUser,
     deleteUser,
@@ -187,4 +193,5 @@ module.exports = {
     googleLogin,
     facebookLogin,
     updateUser,
+    updateUserData,
 }
