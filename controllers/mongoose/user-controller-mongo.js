@@ -1,4 +1,5 @@
 const { User } = require("../../models/user")
+const { Order } = require("../../models/order")
 const { OAuth2Client } = require('google-auth-library')
 const utils = require('../../utils')
 const config = require("../../config")
@@ -71,12 +72,10 @@ const googleLogin = async (req, res) => {
                 })
             } else {
                 const userId = utils.generateUuid()
-                const [firstName, lastName] = payload.name.split(' ')
                 const newUser = new User({
                     user_id: userId,
                     username: payload.sub,
-                    first_name: firstName,
-                    last_name: lastName,
+                    name: payload.name,
                 })
                 await newUser.save()
                 const token = auth.createToken(newUser)
@@ -111,8 +110,7 @@ const facebookLogin = async (req, res) => {
                     const newUser = new User({
                         user_id: userId,
                         username: user.id,
-                        first_name: user.first_name,
-                        last_name: user.last_name,
+                        name: `${user.first_name} ${user.last_name}`,
                     })
                     await newUser.save()
                     const token = auth.createToken(newUser)
@@ -132,15 +130,61 @@ const facebookLogin = async (req, res) => {
     }
 }
 
+const getUser = async (req, res) => {
+    try {
+        const result = await User.findOne({ user_id: req.user.user_id })
+        res.status(200).json({
+            token: req.token,
+            user: result,
+        })
+    } catch (err) {
+        console.log('Error get user data:', err.message)
+        res.status(500).json({ message: 'Error get user data' })
+    }
+}
+
+const updateUser = async (req, res) => {
+    const userId = req.user.user_id
+    const user = req.body
+    try {
+        const result = await User.findOneAndUpdate({ user_id: userId }, user, { new: true })
+        res.status(200).json({
+            message: 'User data successfully updated',
+            user: result
+        })
+    } catch (err) {
+        console.log('Fail to update user data:', err.message)
+        res.status(500).json({ message: 'Fail to update user data' })
+    }
+}
+
+const deleteUser = async (req, res) => {
+    const userId = req.user.user_id
+    try {
+        const result = await Order.findOne({ user_id: userId })
+        if (result) {
+            throw new Error('account already have an order')
+        } else {
+            await User.deleteOne({ user_id: userId })
+            res.status(200).json({ message: 'Delete account successfully' })
+        }
+    } catch (err) {
+        console.log('Fail to delete account:', err.message)
+        res.status(500).json({ message: 'Fail to delete account' })
+    }
+}
+
 const getUserByUsername = async (username) => {
     const result = await User.findOne({ username: username })
     return result
 }
 
 module.exports = {
+    getUser,
+    deleteUser,
     login,
     register,
     googleLogin,
     facebookLogin,
-    getUserByUsername,
+    updateUser,
 }

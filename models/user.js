@@ -15,20 +15,27 @@ const userSchema = new mongoose.Schema({
         type: String,
         maxlength: 100,
     },
-    first_name: {
+    name: {
         type: String,
         required: true,
-        maxlength: 45,
-    },
-    last_name: {
-        type: String,
-        required: true,
-        maxlength: 45,
     },
     role: {
         type: String,
         maxlength: 45,
         default: 'user'
+    },
+    balance: {
+        type: Number,
+        default: 0
+    },
+    location: {
+        address: {
+            type: String,
+        },
+        latlng: {
+            lat: { type: Number },
+            lng: { type: Number },
+        }
     },
     created_at: {
         type: Date,

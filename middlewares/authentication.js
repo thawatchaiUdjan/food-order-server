@@ -10,6 +10,7 @@ const verifyToken = (req, res, next) => {
         try {
             const decoded = jwt.verify(token, jwtSecret)
             req.user = decoded.user
+            req.token = token
             next()
         } catch (err) {
             if (err.name === config.TOKEN.TOKEN_EXPIRED_CODE) {
