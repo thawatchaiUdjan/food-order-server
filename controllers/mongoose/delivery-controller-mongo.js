@@ -4,7 +4,7 @@ const config = require("../../config")
 
 const getDelivery = async (req, res) => {
     try {
-        const result = await DeliveryOption.find()
+        const result = await DeliveryOption.find().sort({ delivery_cost: 1 })
         res.status(200).json(result)
     } catch (err) {
         console.log(`${config.RES_MESSAGES.ERROR.LOAD_DATA_FAILED}:`, err.message)
