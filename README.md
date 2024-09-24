@@ -1,12 +1,20 @@
-# Food Order App Backend
+# Node.js REST API Service
 
 ## Overview
 
-This repository contains the backend for the Food Order App. The backend is built with Node.js and Express and serves as a RESTful API to support the food ordering functionality of the application. It uses MySQL as the database and is containerized using Docker for ease of deployment on Google Cloud Run.
+This repository contains a REST API service built in Node.js using the Express framework. It connects to a MySQL database for data storage and is containerized using Docker for streamlined deployment on Google Cloud Run. 
 
 ## Features
 
-- **RESTful API**: Provides endpoints to manage food orders, users, and more.
-- **MySQL Database**: Persistent storage for order data and user information.
-- **Docker**: Containerization for consistent development and deployment environments.
-- **Google Cloud Run**: Deployment on a fully managed serverless platform for automatic scaling and high availability.
+- **RESTful API**: Implements endpoints for various application functionalities.
+- **MySQL Database**: Relational database for structured data storage and retrieval.
+- **Docker**: Containerized application for consistent development and deployment environments.
+- **Google Cloud Run**: Easily deploys on a fully managed serverless platform with automatic scaling and high availability.
+
+## Web Application
+
+This service powers the [Web Application](https://food-order-app-kappa-six.vercel.app), providing users with a seamless experience and access to various features offered by the backend.
+
+## Contributing
+
+Contributions are welcome! Please open an issue or submit a pull request for any enhancements or bug fixes.
